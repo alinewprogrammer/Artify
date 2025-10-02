@@ -4,7 +4,7 @@ import { Toaster } from '@/components/ui/sonner'
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
-    <main className="root" suppressHydrationWarning >
+    <main className="root">
       <Sidebar />
       <MobileNav />
 

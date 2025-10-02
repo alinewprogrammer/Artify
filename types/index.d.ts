@@ -1,6 +1,9 @@
 /* eslint-disable no-unused-vars */
 
 // ====== USER PARAMS
+// types/svix.d.ts
+declare module "svix";
+
 declare type CreateUserParams = {
   clerkId: string;
   email: string;

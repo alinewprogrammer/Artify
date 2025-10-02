@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { clerkClient } from "@clerk/nextjs/server";
 
 import User from "../database/models/user.model";
 import { connectToDatabase } from "../database/mongoose";
@@ -10,9 +11,7 @@ import { handleError } from "../utils";
 export async function createUser(user: CreateUserParams) {
   try {
     await connectToDatabase();
-
     const newUser = await User.create(user);
-
     return JSON.parse(JSON.stringify(newUser));
   } catch (error) {
     handleError(error);
@@ -29,6 +28,42 @@ export async function getUserById(userId: string) {
     if (!user) throw new Error("User not found");
 
     return JSON.parse(JSON.stringify(user));
+  } catch (error) {
+    handleError(error);
+  }
+}
+
+// GET OR CREATE (on-demand after sign-in)
+export async function getOrCreateUserByClerkId(clerkId: string) {
+  try {
+    await connectToDatabase();
+
+    const existing = await User.findOne({ clerkId });
+    if (existing) return JSON.parse(JSON.stringify(existing));
+
+    const cc = await clerkClient();
+    const clerkUser = await cc.users.getUser(clerkId);
+
+    const primaryEmail = clerkUser?.emailAddresses?.[0]?.emailAddress;
+    const imageUrl = clerkUser?.imageUrl ?? "";
+    const firstName = clerkUser?.firstName ?? "";
+    const lastName = clerkUser?.lastName ?? "";
+    const username = (clerkUser as any)?.username ?? null;
+
+    if (!primaryEmail || !username) {
+      throw new Error("Cannot create user: missing email/username from Clerk");
+    }
+
+    const newUser = await User.create({
+      clerkId,
+      email: primaryEmail,
+      username,
+      firstName,
+      lastName,
+      photo: imageUrl,
+    });
+
+    return JSON.parse(JSON.stringify(newUser));
   } catch (error) {
     handleError(error);
   }
