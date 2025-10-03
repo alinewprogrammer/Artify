@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server"; // ✅ correct import for server components
+import { auth } from "@clerk/nextjs/server"; // server import
 import Image from "next/image";
 import Link from "next/link";
 
@@ -9,9 +9,16 @@ import { getImageById } from "@/lib/actions/image.actions";
 import { getImageSize } from "@/lib/utils";
 import { DeleteConfirmation } from "@/components/shared/DeleteConfirmation";
 
-const ImageDetails = async ({ params: { id } }: SearchParamProps) => {
-  const { userId } = await auth(); // ✅ must await
+type SearchParamProps = {
+  // params can be a promise in Next 15, so allow either
+  params: { id: string } | Promise<{ id: string }>;
+};
 
+const ImageDetails = async ({ params }: SearchParamProps) => {
+  // Await params first (Next 15 dynamic API requirement)
+  const { id } = await params;
+
+  const { userId } = await auth(); // server auth
   const image = await getImageById(id);
 
   return (
@@ -59,7 +66,7 @@ const ImageDetails = async ({ params: { id } }: SearchParamProps) => {
 
       <section className="mt-10 border-t border-dark-400/15">
         <div className="transformation-grid">
-          {/* MEDIA UPLOADER */}
+          {/* ORIGINAL IMAGE */}
           <div className="flex flex-col gap-4">
             <h3 className="h3-bold text-dark-600">Original</h3>
 
@@ -67,7 +74,7 @@ const ImageDetails = async ({ params: { id } }: SearchParamProps) => {
               width={getImageSize(image.transformationType, image, "width")}
               height={getImageSize(image.transformationType, image, "height")}
               src={image.secureURL}
-              alt="image"
+              alt={image.title || "image"}
               className="transformation-original_image"
             />
           </div>
