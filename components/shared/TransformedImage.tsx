@@ -40,8 +40,7 @@ const TransformedImage = ({ image, type, title, transformationConfig, isTransfor
     className="pb-[6px]"
   />
 </button>
-
-        )}
+)}
       </div>
 
       {image?.publicId && transformationConfig ? (
@@ -50,7 +49,7 @@ const TransformedImage = ({ image, type, title, transformationConfig, isTransfor
             width={getImageSize(type, image, "width")}
             height={getImageSize(type, image, "height")}
             src={image?.publicId}
-            alt={image.title}
+            alt={image?.title || title || 'Transformed image'}
             sizes={"(max-width: 767px) 100vw, 50vw"}
             placeholder={dataUrl as PlaceholderValue}
             className="transformed-image"

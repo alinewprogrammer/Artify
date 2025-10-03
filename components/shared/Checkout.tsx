@@ -53,7 +53,12 @@ const Checkout = ({
   };
 
   return (
-    <form action={onCheckout}>
+    <form
+      onSubmit={async (e) => {
+        e.preventDefault(); // stop page reload
+        await onCheckout();
+      }}
+    >
       <section>
         <Button
           type="submit"
