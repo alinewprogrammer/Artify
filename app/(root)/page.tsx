@@ -47,7 +47,7 @@ const Home = async ({
         <Collection 
           hasSearch={true}
           images={images?.data}
-          totalPages={images?.totalPage} 
+          totalPages={images?.totalPages} 
           page={page}
         />
       </section>
